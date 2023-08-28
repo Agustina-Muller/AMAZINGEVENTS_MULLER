@@ -227,10 +227,7 @@ td{
     height: 190px;
     object-fit: cover;
 }
-.card{
-    width: 290px;
-    height: 190px;
-}
+
 
 #detalle{
     display: flex;
@@ -246,6 +243,7 @@ td{
     margin-top: 2.6%;
     overflow: hidden;
     width:60%;
+    
    
     
 }
