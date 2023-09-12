@@ -195,10 +195,52 @@ const data = {
     ],  
 };
 
+
+
 let textbuscar = document.querySelector('input[id=tbuscar]');
 let buscar = document.querySelector('button[id=buscar]');
 let contenedorevento = document.getElementById('contenedorevento');
-let contenedordatalles = document.getElementById ('contenedordetallado')
+let contenedordatalles = document.getElementById ('contenedordetallado');
+
+
+
+let urlApi = 'https://mindhub-xj03.onrender.com/api/amazing';
+
+
+async function getDataFromApi() {
+  try {
+    let respuesta = await fetch(urlApi); 
+    let apiData = await respuesta.json();
+    return apiData;
+  } catch (error) {
+    console.log(error);
+    return null; 
+  }
+}
+
+async function Data(callback){
+ try {
+    let apiData = await getDataFromApi(); 
+    const events = apiData ? apiData.events : data.events;
+    const currentDate = apiData ? apiData.currentDate : data.currentDate;
+    
+    //console.log(events);
+    //console.log(currentDate);
+  
+    callback(events, currentDate )
+    
+  } catch (error) {
+   console.log(error)
+   
+  }
+  
+};
+
+
+
+
+
+
 
 function fcrearcard(array,contenedorevento){
   let re = ""
@@ -267,17 +309,28 @@ function filtradocompleto (array, criterio, campo) {
    fcrearcard(filtro, contenedorevento);
   }else {
     contenedorevento.innerHTML = `
-      <p class="card-title" id="resultado">¡No hay ningún resultado!, Intente nuevamente. :(</p>
+      <p class="card-title" id="resultado">No results found! Please try again. :(</p>
       <div class="d-grid gap-2 col-6 mx-auto" >
-      <button class="btn btn-primary mx-auto btn-lg" type="button" onclick="window.location.reload()">Volver atrás</button>
+      <button class="btn btn-primary mx-auto btn-lg" type="button" onclick="window.location.reload()">Return.</button>
       <div>
     `;
   }
   
 }
 
-function detalles() {
-  const eventosdetallado = data.events.map(evento =>{
+
+
+function detalles(array) {
+  
+  console.log([document])
+  const queryString = document.location.search;
+  console.log(queryString)
+  const parametros = new URLSearchParams(queryString);
+  console.log(parametros)
+  const di = parseInt(parametros.get("id"));
+  console.log(di)
+
+  let eventosdetallado = array.map(evento =>{
     let aux= {}
     aux.name = evento.name
     aux.description = evento.description
@@ -292,22 +345,15 @@ function detalles() {
     aux.precio = evento.price
     return aux
   });
+  console.log(eventosdetallado)
 
-  const queryString = document.location.search;
-
-  console.log(queryString)
-
-  const parametros = new URLSearchParams (queryString);
-
-  const id = parametros.get ("id");
-
-  console.log(id)
-
-  const eventoDetalle = eventosdetallado.find(evento => evento.id === id)
+  const eventoDetalle = eventosdetallado.find(evento => evento.id === di);
   console.log(eventoDetalle)
 
- if (eventoDetalle) {
-   const variable = eventoDetalle.estimado !== undefined ? `Estimado: ${eventoDetalle.estimado}` : `Asistencia: ${eventoDetalle.asistencia}`;
+  
+
+  if (eventoDetalle) {
+    const variable = eventoDetalle.estimado !== undefined ? `Estimate: ${eventoDetalle.estimado}` : `Asistance: ${eventoDetalle.asistencia}`;
 
     const tarjetaDetalle = `
     <div class="card mb-3 d-flex" id="cart">
@@ -318,23 +364,197 @@ function detalles() {
         <div class="col-12 col-sm-1 col-md-3 col-xl-4">
           <div class="card-body" id="dp">
             <h5 class="card-title">${eventoDetalle.name}</h5>
-            <p class="card-text">Categoría: ${eventoDetalle.categoria}</p>
-            <p class="card-text">Fecha: ${eventoDetalle.fecha}</p>
+            <p class="card-text">Category: ${eventoDetalle.categoria}</p>
+            <p class="card-text">Date: ${eventoDetalle.fecha}</p>
             <p class="card-text">${eventoDetalle.description}</p>
-            <p class="card-text">Precio: ${eventoDetalle.precio}</p>
-            <p class="card-text"><small class="text-muted">Lugar: ${eventoDetalle.lugar}</small></p>
-            <p class="card-text"><small class="text-muted">Capacidad: ${eventoDetalle.capacidad} - ${variable}</small></p>
+            <p class="card-text">Price: ${eventoDetalle.precio}</p>
+            <p class="card-text"><small class="text-muted">Place: ${eventoDetalle.lugar}</small></p>
+            <p class="card-text"><small class="text-muted">Capacity: ${eventoDetalle.capacidad} - ${variable}</small></p>
           </div>
         </div>
       </div>
     </div>
    `;
-   contenedordatalles.innerHTML = tarjetaDetalle
+   contenedordatalles.innerHTML = tarjetaDetalle;
+  }
+};
+
+
+
+
+function tablaasistencia(array, contenedor) {
+  let tbodyhtml = "";
+
+  for (let x = 0; x < 7; x++) {
+    const eventosMayorPorcentajeAsistencia = EventosMayorPromedio(array);
+    const eventoMenorPorcentajeAsistencia = MenorPromedio(array);
+    const eventoMayorCapacidad = MayorCapacidad(array);
+
+    tbodyhtml += `<tr>
+                    <td>${eventosMayorPorcentajeAsistencia[x].name} with an average attendance rate of ${eventosMayorPorcentajeAsistencia[x].promedioAsistencia}%</td>
+                    <td>${eventoMenorPorcentajeAsistencia[x].name} with an average attendance rate of ${eventoMenorPorcentajeAsistencia[x].promedioAsistencia}%</td>
+                    <td>${eventoMayorCapacidad[x].name}  with a capacity:  ${eventoMayorCapacidad[x].capacity}</td>
+                  </tr>`;
   }
 
-  
- 
+  contenedor.innerHTML = tbodyhtml;
+}
+
+
+
+function EventosMayorPromedio(array) {
+  const eventosConPromedios = array.map(evento => {
+      const promedioAsistencia = Math.ceil((evento.assistance / evento.capacity) * 100);
+      return {
+          ...evento,
+          promedioAsistencia: promedioAsistencia, 
+      };
+  });
+
+  const eventosOrdenados = eventosConPromedios.sort((a, b) => b.promedioAsistencia - a.promedioAsistencia);
+  //console.log(eventosOrdenados)
+  return eventosOrdenados;
 };
+
+
+function MenorPromedio(array) {
+  const eventosConPromedios = array.map(evento => {
+      const promedioAsistencia = Math.ceil((evento.assistance / evento.capacity) * 100);
+      return {
+          ...evento,
+          promedioAsistencia: promedioAsistencia, 
+      };
+  });
+
+  const eventosOrdenados = eventosConPromedios.sort((a, b) => a.promedioAsistencia - b.promedioAsistencia);
+ //console.log(eventosOrdenados)
+  return eventosOrdenados;
+
+};
+
+function MayorCapacidad(array) {
+ 
+  const eventosOrdenados = array.slice().sort((a, b) => b.capacity - a.capacity);
+ 
+  //console.log(eventosOrdenados);
+  return eventosOrdenados;
+};
+
+
+
+function categoriasunicas(array) {
+ 
+  let categoriasUnicas = [];
+
+  for (const evento of array) {
+    const categoria = evento.category;
+
+    if (!categoriasUnicas.includes(categoria)) {
+      categoriasUnicas.push(categoria);
+    }
+  }
+
+  console.log(categoriasUnicas);
+  return categoriasUnicas;
+};
+  
+function tablaupcoming(array, contenedor){
+  let tbodyhtml = "";
+  let eventoscate;
+  let ingresos;
+  let Porcentajeasistencia;
+  const catearray = categoriasunicas(array)
+  catearray.forEach (cate => {
+    eventoscate = array.filter(evento => evento.category === cate)
+  
+    ingresos = sumadeingresosxcategoria(eventoscate);
+    Porcentajeasistencia= porcentajeasistencia(eventoscate);
+
+    tbodyhtml += `<tr>
+                    <td>${cate} </td>
+                    <td>${ingresos} </td>
+                    <td>${Porcentajeasistencia}%  </td>
+                  </tr>`;
+  
+  
+   })
+    contenedor.innerHTML = tbodyhtml;
+};
+
+function sumadeingresosxcategoria(array){
+    let ingreso = 0 ;
+    array.forEach(evento => ingreso += evento.price * (evento.estimate !== undefined ? evento.estimate : evento.assistance));
+    return ingreso;
+
+  };
+
+function porcentajeasistencia(array){
+    let asistencia = 0;
+    let capacidad = 0;
+    
+    array.forEach(evento => {capacidad += evento.capacity
+       asistencia += (evento.estimate !== undefined ? evento.estimate : evento.assistance)})
+    
+    return Math.ceil((asistencia/ capacidad)*100)
+    //return Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance)/ evento.capacity) * 100);
+};
+
+function tablapast(array, contenedor){
+  let tbodyhtml = "";
+  let eventoscate;
+  let ingresos;
+  let Porcentajeasistencia;
+  const catearray = categoriasunicas(array)
+  catearray.forEach (cate => {
+    eventoscate = array.filter(evento => evento.category === cate)
+  
+    ingresos = sumadeingresosxcategoria(eventoscate);
+    Porcentajeasistencia= porcentajeasistencia(eventoscate);
+
+    tbodyhtml += `<tr>
+                    <td>${cate} </td>
+                    <td>${ingresos} </td>
+                    <td>${Porcentajeasistencia}% </td>
+                  </tr>`;
+  
+  
+   })
+    contenedor.innerHTML = tbodyhtml;
+};
+
+
+
+
+
+  
+   
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

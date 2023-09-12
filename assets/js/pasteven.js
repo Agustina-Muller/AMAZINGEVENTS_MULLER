@@ -1,27 +1,30 @@
-const eventos = data.events;
-const fecha = data.currentDate;
 const creartarjeta = fcrearcard;
-const eventosfiltrados = data.events.filter(evento => evento.date >= data.currentDate);
 const checkdinamico = crearCheckboxes;
 const filtro = filtradocompleto;
+Data(eventosPasados)
 
-fcrearcard (eventosfiltrados, contenedorevento);
+function eventosPasados (events, currentDate){
+    const eventosfiltrados = events.filter(evento => evento.date <= currentDate);
+
+    fcrearcard (eventosfiltrados, contenedorevento);
 
 
-buscar.addEventListener('click', () => {
-    Modificarcamposdefiltro(contenedorevento, eventosfiltrados , textbuscar.value, 'name');
+    buscar.addEventListener('click', () => {
+     Modificarcamposdefiltro(contenedorevento, eventosfiltrados , textbuscar.value, 'name');
 
-})
+    })
 
-checkdinamico(eventosfiltrados)
+    checkdinamico(eventosfiltrados)
 
-buscar.addEventListener('click', () => {
-    filtro(eventosfiltrados, textbuscar.value, 'name');
+    buscar.addEventListener('click', () => {
+        filtro(eventosfiltrados, textbuscar.value, 'name');
   
-});
+    });
   
-document.addEventListener('input', e => {
-    if (e.target.classList.contains('category')) {
-      filtro (eventosfiltrados, textbuscar.value, 'name')
-    }
-});
+    document.addEventListener('input', e => {
+        if (e.target.classList.contains('category')) {
+            filtro (eventosfiltrados, textbuscar.value, 'name')
+        }
+    });
+}
+

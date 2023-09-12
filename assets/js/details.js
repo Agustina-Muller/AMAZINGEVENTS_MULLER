@@ -1,5 +1,8 @@
-const eventos = data.events;
 const creartarjetadedetalles = detalles;
 
+Data(Tarjetadetallada);
 
-creartarjetadedetalles (eventos)
+function Tarjetadetallada(events) {
+   detalles (events)
+}
+
