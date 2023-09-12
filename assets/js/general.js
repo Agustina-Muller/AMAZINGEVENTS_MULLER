@@ -404,7 +404,7 @@ function tablaasistencia(array, contenedor) {
 
 function EventosMayorPromedio(array) {
   const eventosConPromedios = array.map(evento => {
-      const promedioAsistencia = Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100);
+      const promedioAsistencia = ((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100;
       return {
           ...evento,
           promedioAsistencia: promedioAsistencia, 
@@ -412,17 +412,17 @@ function EventosMayorPromedio(array) {
   });
 
   const eventosOrdenados = eventosConPromedios.sort((a, b) => b.promedioAsistencia - a.promedioAsistencia);
-  //console.log(eventosOrdenados)
+  console.log(eventosOrdenados)
   return eventosOrdenados;
 };
 
 
 function MenorPromedio(array) {
   const eventosConPromedios = array.map(evento => {
-      const promedioAsistencia = Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100);
+      const promedioAsistencia = ((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100;
       return {
           ...evento,
-          promedioAsistencia: promedioAsistencia, 
+          promedioAsistencia: promedioAsistencia.toFixed(2), 
       };
   });
 
@@ -495,7 +495,7 @@ function porcentajeasistencia(array){
     array.forEach(evento => {capacidad += evento.capacity
        asistencia += (evento.estimate !== undefined ? evento.estimate : evento.assistance)})
     
-    return Math.ceil((asistencia/ capacidad)*100)
+    return ((asistencia/ capacidad)*100).toFixed(2)
     //return Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance)/ evento.capacity) * 100);
 };
 
