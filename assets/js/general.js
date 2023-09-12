@@ -393,7 +393,7 @@ function tablaasistencia(array, contenedor) {
     tbodyhtml += `<tr>
                     <td>${eventosMayorPorcentajeAsistencia[x].name} with an average attendance rate of ${eventosMayorPorcentajeAsistencia[x].promedioAsistencia}%</td>
                     <td>${eventoMenorPorcentajeAsistencia[x].name} with an average attendance rate of ${eventoMenorPorcentajeAsistencia[x].promedioAsistencia}%</td>
-                    <td>${eventoMayorCapacidad[x].name}  with a capacity:  ${eventoMayorCapacidad[x].capacity}</td>
+                    <td>${eventoMayorCapacidad[x].name}  with a capacity:  ${(eventoMayorCapacidad[x].capacity).toLocaleString()}</td>
                   </tr>`;
   }
 
@@ -404,7 +404,7 @@ function tablaasistencia(array, contenedor) {
 
 function EventosMayorPromedio(array) {
   const eventosConPromedios = array.map(evento => {
-      const promedioAsistencia = Math.ceil((evento.assistance / evento.capacity) * 100);
+      const promedioAsistencia = Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100);
       return {
           ...evento,
           promedioAsistencia: promedioAsistencia, 
@@ -419,7 +419,7 @@ function EventosMayorPromedio(array) {
 
 function MenorPromedio(array) {
   const eventosConPromedios = array.map(evento => {
-      const promedioAsistencia = Math.ceil((evento.assistance / evento.capacity) * 100);
+      const promedioAsistencia = Math.ceil(((evento.estimate !== undefined ? evento.estimate : evento.assistance) / evento.capacity) * 100);
       return {
           ...evento,
           promedioAsistencia: promedioAsistencia, 
@@ -427,7 +427,7 @@ function MenorPromedio(array) {
   });
 
   const eventosOrdenados = eventosConPromedios.sort((a, b) => a.promedioAsistencia - b.promedioAsistencia);
- //console.log(eventosOrdenados)
+  //console.log(eventosOrdenados)
   return eventosOrdenados;
 
 };
@@ -484,7 +484,7 @@ function tablaupcoming(array, contenedor){
 function sumadeingresosxcategoria(array){
     let ingreso = 0 ;
     array.forEach(evento => ingreso += evento.price * (evento.estimate !== undefined ? evento.estimate : evento.assistance));
-    return ingreso;
+    return ingreso.toLocaleString();
 
   };
 
